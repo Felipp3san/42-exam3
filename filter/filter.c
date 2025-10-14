@@ -21,7 +21,7 @@ realloc, free, printf, fprintf, stdout, stderr, perror
 #include <stdio.h>
 #include <unistd.h>
 
-# define BUFFER_SIZE 1024
+# define BUFFER_SIZE 10
 
 void	perform_replacements(char *buffer, char *filter_str)
 {
@@ -41,38 +41,51 @@ void	perform_replacements(char *buffer, char *filter_str)
 			substr[i] = '*';
 			i++;
 		}
-	substr = memmem(buffer, buffer_len, filter_str, filter_len);
+		substr = memmem(buffer, buffer_len, filter_str, filter_len);
 	}
 }
 
-int	filter(char	*buffer, char *filter_str)
+int	filter(char	**buffer, char *filter_str)
 {
-	int	r;
-	int size;
+	char	tmp[1024];
+	int		r;
+	size_t	buf_len;
 
-	size = 0;
-	while ((r = read(STDIN_FILENO, buffer, BUFFER_SIZE)) > 0)
-		size += r;
+	while ((r = read(STDIN_FILENO, tmp, BUFFER_SIZE)) > 0)
+	{
+		if (!(*buffer))
+			buf_len = 0;
+		else
+			buf_len = strlen(*buffer);
+		*buffer = realloc(*buffer, buf_len + r + 1);
+		if (!(*buffer))
+			return (-1);
+		memcpy((*buffer) + buf_len, tmp, r);
+		(*buffer)[buf_len + r] = '\0';
+	}
 	if (r < 0)
 	{
 		perror("read");
-		return(0);
+		return(-1);
 	}
-	buffer[size] = '\0';
-	perform_replacements(buffer, filter_str);
+	if (*filter_str)
+		perform_replacements(*buffer, filter_str);
 	return (1);
 }
 
 int	main(int argc, char	**argv)
 {
-	char	buffer[BUFFER_SIZE];
-	size_t	i;
+	char	*buffer;
 
-	if (argc != 2)
+	buffer = NULL;
+	if (argc != 2 || !*argv[1])
 		return (1);
-	filter(buffer, argv[1]);
-	i = 0;
-	while (buffer[i])
-		write(STDOUT_FILENO, &buffer[i++], 1);
+	if (!filter(&buffer, argv[1]))
+		return (1);
+	if (*buffer)
+	{
+		write(STDOUT_FILENO, buffer, strlen(buffer));
+		free(buffer);
+	}
 	return (0);
 }

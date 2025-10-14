@@ -21,7 +21,7 @@ realloc, free, printf, fprintf, stdout, stderr, perror
 #include <stdio.h>
 #include <unistd.h>
 
-# define BUFFER_SIZE 10
+# define BUFFER_SIZE 1024
 
 void	perform_replacements(char *buffer, char *filter_str)
 {
@@ -47,9 +47,10 @@ void	perform_replacements(char *buffer, char *filter_str)
 
 int	filter(char	**buffer, char *filter_str)
 {
-	char	tmp[1024];
-	int		r;
+	char	*tmp_realloc;
+	char	tmp[BUFFER_SIZE];
 	size_t	buf_len;
+	int		r;
 
 	while ((r = read(STDIN_FILENO, tmp, BUFFER_SIZE)) > 0)
 	{
@@ -57,9 +58,10 @@ int	filter(char	**buffer, char *filter_str)
 			buf_len = 0;
 		else
 			buf_len = strlen(*buffer);
-		*buffer = realloc(*buffer, buf_len + r + 1);
-		if (!(*buffer))
-			return (-1);
+		tmp_realloc = realloc(*buffer, buf_len + r + 1);
+		if (!tmp_realloc)
+			return (free(*buffer), -1);
+		*buffer = tmp_realloc;
 		memcpy((*buffer) + buf_len, tmp, r);
 		(*buffer)[buf_len + r] = '\0';
 	}

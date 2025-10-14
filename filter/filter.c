@@ -65,13 +65,12 @@ int	filter(char	*buffer, char *filter_str)
 
 int	main(int argc, char	**argv)
 {
-	char	buffer[1024];
+	char	buffer[BUFFER_SIZE];
 	size_t	i;
 
 	if (argc != 2)
 		return (1);
 	filter(buffer, argv[1]);
-
 	i = 0;
 	while (buffer[i])
 		write(STDOUT_FILENO, &buffer[i++], 1);

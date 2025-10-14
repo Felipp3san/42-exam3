@@ -1,0 +1,72 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   permutations.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: fde-alme <fde-alme@student.42porto.com>    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/14 19:02:04 by fde-alme          #+#    #+#             */
+/*   Updated: 2025/10/14 21:13:15 by fde-alme         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+/*
+Allowed functions: puts, malloc, calloc, realloc, free, write
+*/
+
+#include <stdlib.h>
+#include <stdio.h>
+
+void	swap(char *a, char *b)
+{
+	char	temp;
+
+	temp = *a;
+	*a = *b;
+	*b = temp;
+}
+
+size_t	ft_strlen(char *str)
+{
+	size_t	size;
+
+	size = 0;
+	while (str[size])
+		size++;
+	return (size);
+}
+
+void	permutations(char *str, int start, int end)
+{
+	size_t	i;
+
+	i = 0;
+	if (start == end)
+	{
+		puts(str);
+		return ;
+	}
+	while (str[i])
+	{
+
+		buffer[idx] = str[i];
+		permutations(str + 1, size, buffer, idx + 1);
+		i++;
+	}
+}
+
+
+int	main(int argc, char	**argv)
+{
+	char	*buffer;
+	int		size;
+
+	if (argc != 2 || !*argv[1])
+		return (1);
+	size = ft_strlen(argv[1]);
+	buffer = (char *) calloc(size, sizeof(char));
+	if (!buffer)
+		return (1);
+	permutations(argv[1], size,  buffer, 0);
+	return (0);
+}
